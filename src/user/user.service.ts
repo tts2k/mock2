@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "prisma/generated/prisma-client.js"
 
@@ -20,6 +20,19 @@ export class UserService {
     return this.prisma.user.update({
       data, where
     })
+  }
+
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    try {
+      return await this.prisma.user.create({ data });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new HttpException({
+          message: 'Duplicate value',
+          fields: error.meta.target
+        }, HttpStatus.BAD_REQUEST)
+      }
+    }
   }
 
   async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
