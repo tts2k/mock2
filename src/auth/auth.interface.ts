@@ -1,5 +1,3 @@
-import { Moment } from "moment";
-
 export enum TokenType {
   ACCESS = 'access',
   REFRESH = 'refresh',
@@ -15,7 +13,13 @@ export interface AuthData {
 
 export interface JwtPayload {
   sub: number,
-  iat: Moment,
-  exp: Moment,
+  iat: number,
+  exp: number,
   type: TokenType
+}
+
+export interface JwtConfig {
+  secret: string,
+  accessExpirationMinutes: number,
+  refreshExpirationDays: number
 }

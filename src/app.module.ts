@@ -10,7 +10,10 @@ import { validate } from './env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ validate, }),
+    ConfigModule.forRoot({
+      validate,
+      cache: true
+    }),
     PrismaModule,
     UserModule,
     JwtModule,
