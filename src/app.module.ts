@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { validate } from './env.validation';
+import { SessionModule } from './session/session.module';
+import { APP_FILTER } from '@nestjs/core';
+import { PrismaFilter } from './prisma/prisma.filter';
 
 @Module({
   imports: [
@@ -18,8 +21,15 @@ import { validate } from './env.validation';
     UserModule,
     JwtModule,
     AuthModule,
+    SessionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: PrismaFilter
+    },
+    AppService
+  ],
 })
 export class AppModule {}
