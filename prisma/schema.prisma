@@ -43,7 +43,7 @@ model Address {
 
 model Session {
   id           Int      @id @default(autoincrement())
-  refreshToken String
+  refreshToken String   @unique
   deviceId     String
   expires      DateTime
   userId       Int?

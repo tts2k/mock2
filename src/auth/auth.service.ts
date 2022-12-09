@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'prisma/generated/prisma-client.js';
 import { JwtPayload, TokenType, AuthData } from './auth.interface';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { JwtConfig } from './auth.interface';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -13,45 +14,59 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService
   ) {
     this.jwtConfig = {
-      secret: this.configService.get<string>('JWT_SECRET'),
       accessExpirationMinutes: this.configService.get<number>('JWT_ACCESS_EXPIRE_MINUTES'),
-      refreshExpirationDays:  this.configService.get<number>('JWT_REFRESH_EXPIRE_DAYS')
+      refreshExpirationDays: this.configService.get<number>('JWT_REFRESH_EXPIRE_DAYS')
     }
   }
 
-  private async generateToken(payload: JwtPayload) {
-    return this.jwtService.sign(payload, { secret: this.jwtConfig.secret })
-  }
-
   async generateAuthTokens(user: User): Promise<AuthData | null> {
-    const accessTokenExpires: number = moment().add(this.jwtConfig.accessExpirationMinutes).unix();
-    const refreshTokenExpires: number = moment().add(this.jwtConfig.refreshExpirationDays).unix();
+    const accessTokenExpires: Moment = moment().add(this.jwtConfig.accessExpirationMinutes);
+    const refreshTokenExpires: Moment = moment().add(this.jwtConfig.refreshExpirationDays);
 
     const accessPayload: JwtPayload = {
       sub: user.id,
       iat: moment().unix(),
-      exp: accessTokenExpires,
-      type: TokenType.ACCESS
+      exp: accessTokenExpires.unix(),
+      type: TokenType.ACCESS,
+      username: user.username
     }
     const refreshPayload: JwtPayload = {
       sub: user.id,
       iat: moment().unix(),
-      exp: refreshTokenExpires,
-      type: TokenType.REFRESH
+      exp: refreshTokenExpires.unix(),
+      type: TokenType.REFRESH,
+      username: user.username
     }
 
-    const accessToken: string = await this.generateToken(accessPayload);
-    const refreshToken: string = await  this.generateToken(refreshPayload);
+    const accessToken: string = this.jwtService.sign(accessPayload)
+    const refreshToken: string = this.jwtService.sign(refreshPayload);
 
     return {
-      username: user.username,
-      email: user.email,
-      token: {
-        access: accessToken,
-        refresh: refreshToken
+      data: {
+        username: user.username,
+        email: user.email,
+        token: {
+          access: accessToken,
+          refresh: refreshToken
+        }
+      },
+      expires: {
+        access: accessTokenExpires,
+        refresh: refreshTokenExpires
       }
     }
+  }
+
+  async validateUser(email: string, pass: string) {
+    const user: User = await this.userService.findOne({ email });
+    if (user && user.password === pass) {
+      const { password, ...result } = user;
+      return result;
+    }
+
+    return null;
   }
 }
