@@ -5,21 +5,24 @@ import { AuthService } from './auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { SessionModule } from 'src/session/session.module';
+import { JwtStrategy } from './jwt.strategy';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
     ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (ConfigService: ConfigService) => ({
-        secret: ConfigService.get<string>('JWT_SECRET')
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET')
       }),
       inject: [ConfigService]
     }),
     UserModule,
     SessionModule,
+    MailModule
   ],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
   controllers: [AuthController]
 })

@@ -3,6 +3,7 @@ import { Moment } from "moment";
 export enum TokenType {
   ACCESS = 'access',
   REFRESH = 'refresh',
+  VERIFY_EMAIL = 'verify_email'
 }
 export interface AuthData {
   data: AuthRO,
@@ -31,5 +32,7 @@ export interface JwtPayload {
 
 export interface JwtConfig {
   accessExpirationMinutes: number,
-  refreshExpirationDays: number
+  refreshExpirationDays: number,
+  emailVerificationSecret: string,
+  emailVerificationExpirationHours: number
 }

@@ -1,14 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable, UseFilters } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "prisma/generated/prisma-client.js"
+import { PrismaFilter } from "src/prisma/prisma.filter";
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async findOne(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null> {
+  async findOne(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
     return this.prisma.user.findUnique({
-      where: userWhereUniqueInput
+      where 
     })
   }
 
@@ -23,19 +24,19 @@ export class UserService {
   }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    try {
-      return await this.prisma.user.create({ data });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new HttpException({
-          message: 'Duplicate value',
-          fields: error.meta.target
-        }, HttpStatus.BAD_REQUEST)
-      }
-    }
+    return await this.prisma.user.create({ data });
   }
 
   async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.delete({ where });
+  }
+
+  async verifyEmail(id: number) {
+    this.update({
+      where: { id },
+      data: {
+        active: true
+      }
+    })
   }
 }
