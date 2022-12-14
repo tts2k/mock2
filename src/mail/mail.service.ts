@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'prisma/generated/prisma-client.js';
+import { User } from '@prisma/client';
 import { createTransport, Transporter } from 'nodemailer';
 import { promises as fs } from 'fs';
 import Handlebars from 'handlebars';

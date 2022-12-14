@@ -1,4 +1,4 @@
-import { Prisma } from "prisma/generated/prisma-client.js";
+import { Prisma } from "@prisma/client";
 import * as bcrypt from 'bcrypt';
 
 export function HashPasswordMiddleware(): Prisma.Middleware {

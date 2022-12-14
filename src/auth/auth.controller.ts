@@ -5,7 +5,7 @@ import { LoginAuthDto } from './dto/login.dto';
 import { UserService } from 'src/user/user.service';
 import { SessionService } from 'src/session/session.service';
 import * as bcrypt from 'bcrypt';
-import { User } from 'prisma/generated/prisma-client.js';
+import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RefreshTokenAuthDto } from './dto/refreshToken.dto';

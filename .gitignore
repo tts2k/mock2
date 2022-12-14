@@ -36,6 +36,3 @@ lerna-debug.log*
 
 # dotenv
 .env
-
-# prisma generated clinet
-prisma/generated

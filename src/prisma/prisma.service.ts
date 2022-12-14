@@ -1,5 +1,5 @@
 import { INestApplication, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { Prisma, PrismaClient } from "prisma/generated/prisma-client.js";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { HashPasswordMiddleware } from "./prisma.middleware";
 
 @Injectable()

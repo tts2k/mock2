@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Session, Prisma } from 'prisma/generated/prisma-client.js';
+import { Session, Prisma } from '@prisma/client';
 
 @Injectable()
 export class SessionService {
