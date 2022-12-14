@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, HttpCode, HttpStatus, Post, Put, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthRO } from './auth.interface';
 import { AuthService } from './auth.service';
 import { LoginAuthDto } from './dto/login.dto';
@@ -71,7 +71,7 @@ export class AuthController {
     return await this.authService.createSession(user, req.headers["user-agent"])
   }
 
-  @Post('confirm')
+  @Get('confirm')
   @ApiOperation({ summary: "Confirm email verification token "})
   async verifyEmail(@Query('token') token: string) {
     if (!token || token === "") {

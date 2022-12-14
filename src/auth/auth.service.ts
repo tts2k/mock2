@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'prisma/generated/prisma-client.js';
@@ -21,8 +21,8 @@ export class AuthService {
     this.jwtConfig = {
       accessExpirationMinutes: this.configService.get<number>('JWT_ACCESS_EXPIRE_MINUTES'),
       refreshExpirationDays: this.configService.get<number>('JWT_REFRESH_EXPIRE_DAYS'),
-      emailVerificationSecret: this.configService.get('JWT_VERIFICATION_SECRET'),
-      emailVerificationExpirationHours: this.configService.get('JWT_VERIFICATION_EXPIRE_HOURS')
+      emailVerificationSecret: this.configService.get<string>('JWT_VERIFICATION_SECRET'),
+      emailVerificationExpirationHours: this.configService.get<number>('JWT_VERIFICATION_EXPIRE_HOURS')
     }
   }
 
@@ -110,11 +110,11 @@ export class AuthService {
   }
 
   async verifyEmailToken(token: string) {
-    const userId = this.jwtService.verify(token, { secret: this.jwtConfig.emailVerificationSecret });
-    if (!userId) {
+    const payload = this.jwtService.verify(token, { secret: this.jwtConfig.emailVerificationSecret });
+    if (!payload.sub) {
       throw new NotFoundException('Could not find the user associated with this token.');
     }
 
-    await this.userService.verifyEmail(userId);
+    await this.userService.verifyEmail(payload.sub);
   }
 }
