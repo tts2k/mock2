@@ -8,8 +8,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { validate } from './env.validation';
 import { SessionModule } from './session/session.module';
-import { APP_FILTER } from '@nestjs/core';
-import { PrismaFilter } from './prisma/prisma.filter';
 import { MailModule } from './mail/mail.module';
 
 @Module({
@@ -27,12 +25,6 @@ import { MailModule } from './mail/mail.module';
     MailModule,
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: APP_FILTER,
-      useClass: PrismaFilter
-    },
-    AppService
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
