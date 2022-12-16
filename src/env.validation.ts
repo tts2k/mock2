@@ -35,6 +35,13 @@ class EnvironmentVariables {
   @IsNumber()
   JWT_VERIFICATION_EXPIRE_HOURS: number = 24;
 
+  @IsNumber()
+  JWT_RESET_PASSWORD_EXPIRE_HOURS: number = 24;
+  
+  @IsString()
+  @IsNotEmpty()
+  JWT_RESET_PASSWORD_SECRET: string;
+
   @IsString()
   @IsNotEmpty()
   MAILER_HOST: string;

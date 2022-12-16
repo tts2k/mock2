@@ -12,6 +12,7 @@ import { join } from 'path';
 export class MailService {
   private readonly transporter: Transporter;
   private readonly logger: Logger = new Logger(MailService.name);
+  private readonly baseUrl: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -24,9 +25,10 @@ export class MailService {
         pass: configService.get('MAILER_PASS')
       }
     })
+    this.baseUrl = configService.get('BASE_URL');
   }
 
-  async sendEmailWithTemplate(options: Mail.Options, config: TemplateConfig) {
+  private async sendEmailWithTemplate(options: Mail.Options, config: TemplateConfig) {
     try {
       const templateBuffer = await fs.readFile(join(__dirname, `/templates/${config.name}.hbs`))
       const html = Handlebars.compile(templateBuffer.toString());
@@ -42,8 +44,7 @@ export class MailService {
   }
 
   async sendUserConfirmation(user: User, token: string) {
-    const baseurl = this.configService.get('BASE_URL');
-    const url = `${baseurl}/auth/confirm?token=${token}`
+    const url = `${this.baseUrl}/auth/confirm?token=${token}`
 
     this.sendEmailWithTemplate({
       from: `No Reply <${this.configService.get("MAILER_FROM")}>`,
@@ -51,6 +52,22 @@ export class MailService {
       subject: "Please confirm your email address"
     }, {
       name: 'confirmation',
+      context: {
+        name: user.username,
+        url
+      }
+    });
+  }
+
+  async sendResetPassword(user: User, token: string) {
+    const url = `${this.baseUrl}/auth/reset?token=${token}`
+
+    this.sendEmailWithTemplate({
+      from: `No Reply <${this.configService.get("MAILER_FROM")}>`,
+      to: user.email,
+      subject: "Please confirm your email address"
+    }, {
+      name: 'resetPassword',
       context: {
         name: user.username,
         url

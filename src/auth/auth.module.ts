@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { SessionModule } from 'src/session/session.module';
 import { JwtStrategy } from './jwt.strategy';
 import { MailModule } from 'src/mail/mail.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { MailModule } from 'src/mail/mail.module';
     }),
     UserModule,
     SessionModule,
-    MailModule
+    MailModule,
+    PrismaModule
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

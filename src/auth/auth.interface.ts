@@ -1,15 +1,14 @@
-import { Moment } from "moment";
-
 export enum TokenType {
   ACCESS = 'access',
   REFRESH = 'refresh',
-  VERIFY_EMAIL = 'verify_email'
+  VERIFY_EMAIL = 'verify_email',
+  RESET_PASSWORD = 'reset_password'
 }
 export interface AuthData {
   data: AuthRO,
   expires: {
-    access: Moment,
-    refresh: Moment
+    access: Date,
+    refresh: Date
   }
 }
 
@@ -34,5 +33,7 @@ export interface JwtConfig {
   accessExpirationMinutes: number,
   refreshExpirationDays: number,
   emailVerificationSecret: string,
-  emailVerificationExpirationHours: number
+  emailVerificationExpirationHours: number,
+  resetPasswordSecret: string,
+  resetPasswordExpirationHours: number
 }
