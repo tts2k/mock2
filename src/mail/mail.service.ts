@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { createTransport, Transporter } from 'nodemailer';
@@ -11,7 +11,6 @@ import { join } from 'path';
 @Injectable()
 export class MailService {
   private readonly transporter: Transporter;
-  private readonly logger: Logger = new Logger(MailService.name);
   private readonly baseUrl: string;
 
   constructor(
@@ -29,24 +28,18 @@ export class MailService {
   }
 
   private async sendEmailWithTemplate(options: Mail.Options, config: TemplateConfig) {
-    try {
-      const templateBuffer = await fs.readFile(join(__dirname, `/templates/${config.name}.hbs`))
-      const html = Handlebars.compile(templateBuffer.toString());
-
-      return await this.transporter.sendMail({
-        ...options,
-        html: html(config.context)
-      })
-    }
-    catch (error) {
-      this.logger.error(error.message);
-    }
+    const templateBuffer = await fs.readFile(join(__dirname, `/templates/${config.name}.hbs`))
+    const html = Handlebars.compile(templateBuffer.toString());
+    return await this.transporter.sendMail({
+      ...options,
+      html: html(config.context)
+    })
   }
 
   async sendUserConfirmation(user: User, token: string) {
     const url = `${this.baseUrl}/auth/confirm?token=${token}`
 
-    this.sendEmailWithTemplate({
+    await this.sendEmailWithTemplate({
       from: `No Reply <${this.configService.get("MAILER_FROM")}>`,
       to: user.email,
       subject: "Please confirm your email address"
@@ -62,7 +55,7 @@ export class MailService {
   async sendResetPassword(user: User, token: string) {
     const url = `${this.baseUrl}/auth/reset?token=${token}`
 
-    this.sendEmailWithTemplate({
+    await this.sendEmailWithTemplate({
       from: `No Reply <${this.configService.get("MAILER_FROM")}>`,
       to: user.email,
       subject: "Please confirm your email address"
