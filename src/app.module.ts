@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -11,6 +11,7 @@ import { SessionModule } from './session/session.module';
 import { MailModule } from './mail/mail.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
+import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -34,4 +35,10 @@ import { FormatResponseInterceptor } from './common/interceptors/format-response
     }
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+      consumer
+        .apply(AppLoggerMiddleware)
+        .forRoutes('*');
+  }
+}
