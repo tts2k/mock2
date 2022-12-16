@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { PrismaFilter } from './prisma/prisma.filter';
+import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,9 @@ async function bootstrap() {
   // Filter prisma errors that should be handled
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new PrismaFilter(httpAdapter));
+
+  // Format response so that even success reponses have statusCode in their body
+  app.useGlobalInterceptors(new FormatResponseInterceptor())
 
   const config = new DocumentBuilder()
     .setTitle('Ecommerce')

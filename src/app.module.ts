@@ -9,6 +9,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { validate } from './env.validation';
 import { SessionModule } from './session/session.module';
 import { MailModule } from './mail/mail.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
 
 @Module({
   imports: [
@@ -16,7 +18,6 @@ import { MailModule } from './mail/mail.module';
       validate,
       cache: true
     }),
-    
     PrismaModule,
     UserModule,
     JwtModule,
@@ -25,6 +26,12 @@ import { MailModule } from './mail/mail.module';
     MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: FormatResponseInterceptor
+    }
+  ],
 })
 export class AppModule {}
