@@ -15,7 +15,7 @@ export class AuthService {
   private jwtConfig: JwtConfig;
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly sessionService: SessionService,
@@ -104,7 +104,7 @@ export class AuthService {
   }
 
   async registerAndSendComfirmEmail(data: Prisma.UserCreateInput) {
-    await this.prisma.$transaction(async (tx) => {
+    await this.prismaService.$transaction(async (tx) => {
       const user = await this.userService.create(data, tx);
 
       const verifyToken = this.generateVerifyToken(user, TokenType.VERIFY_EMAIL);
@@ -144,11 +144,18 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    return this.verifyToken(token, this.jwtConfig.resetPasswordSecret);
+    this.prismaService.$transaction(async (tx) => {
+      const payload: JwtPayload = this.verifyToken(token, this.jwtConfig.resetPasswordSecret);
+
+      this.userService.update({
+        where: { id: payload.sub },
+        data: { password: newPassword }
+      }, tx)
+    })
   }
 
   async verifyRefreshToken(refreshToken: string): Promise<User> {
-    const payload = this.verifyToken(refreshToken);
+    const payload: JwtPayload = this.verifyToken(refreshToken);
 
     const user: User = await this.userService.findOne({ id: payload.sub })
     if (!user) {

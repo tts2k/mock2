@@ -99,6 +99,7 @@ export class AuthController {
     if (!token || token === '') {
       throw new BadRequestException("Token must not be empty");
     }
-
+  
+    this.authService.resetPassword(token, resetPasswordAuthDto.newPassword);
   }
 }
