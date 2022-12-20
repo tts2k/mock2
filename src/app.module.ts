@@ -13,6 +13,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
 import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
 import { ProductModule } from './product/product.module';
+import { CouponModule } from './coupon/coupon.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ProductModule } from './product/product.module';
     SessionModule,
     MailModule,
     ProductModule,
+    CouponModule,
   ],
   controllers: [AppController],
   providers: [
