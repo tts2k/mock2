@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { createTransport, Transporter } from 'nodemailer';
@@ -13,9 +13,7 @@ export class MailService {
   private readonly transporter: Transporter;
   private readonly baseUrl: string;
 
-  constructor(
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.transporter = createTransport({
       host: configService.get('MAILER_HOST'),
       port: configService.get('MAILER_PORT'),

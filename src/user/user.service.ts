@@ -6,9 +6,7 @@ import { addDays, compareAsc } from "date-fns";
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findOne(
     where: Prisma.UserWhereUniqueInput,
