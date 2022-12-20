@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsString, IsNumber, validateSync, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsString, IsNumber, validateSync, IsNotEmpty, IsNotEmptyObject } from 'class-validator';
 
 enum NodeEnv {
   DEV = 'development',
@@ -61,6 +61,9 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   MAILER_FROM: string;
+
+  @IsNumber()
+  PAGINATION_ITEM_NUM: number = 10
 }
 
 export function validate(config: Record<string, unknown>) {
