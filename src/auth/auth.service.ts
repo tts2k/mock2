@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { JwtPayload, TokenType, AuthData, AuthRO } from './auth.interface';
 import { JwtConfig } from './auth.interface';
 import { SessionService } from 'src/session/session.service';
@@ -168,6 +168,11 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async verifyAdmin(userId: number) {
+    const user : User = await this.userService.findOne({ id: userId });
+    return user.role === Role.ADMIN;
   }
 
   async verifyEmailToken(token: string) {
