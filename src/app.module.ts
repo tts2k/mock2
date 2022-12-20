@@ -12,6 +12,7 @@ import { MailModule } from './mail/mail.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
 import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
     AuthModule,
     SessionModule,
     MailModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [
