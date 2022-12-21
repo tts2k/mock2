@@ -14,10 +14,6 @@ export class ProductService {
     private readonly paginationService: PaginationService
   ) { }
 
-  async findOne(where: Prisma.ProductWhereUniqueInput): Promise<Product> {
-    return this.prisma.product.findUnique({ where });
-  }
-
   async update(
     where: Prisma.ProductWhereUniqueInput,
     data: Prisma.ProductUpdateInput,
@@ -39,26 +35,41 @@ export class ProductService {
   async getAllProducts(page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
-        ...productListItemParams(categoryId),
+        ...productListItemParams([categoryId]),
         ...this.paginationService.getPaginationParams(page),
       }),
       this.prisma.product.count()
     ])
 
-    return { items, total, page } 
+    return { items, total, page }
   }
 
-  async getAllProductsWithLimit(limit: number, categoryId?: number): Promise<ProductListItem[]> {
-    return this.prisma.product.findMany({
-      ...productListItemParams(categoryId),
-      take: limit
+  async getRelatedProducts(productId: number, limit: number): Promise<ProductListItem[]> {
+    return await this.prisma.$transaction(async (tx) => {
+      const productCategories = await tx.product.findUnique({
+        where: { id: productId },
+        select: { 
+          categories: {
+            select: {
+              categoryId: true
+            }
+          }
+        }
+      });
+
+      const categoryIds = productCategories.categories.map(e => e.categoryId);
+
+      return tx.product.findMany({
+        ...productListItemParams(categoryIds),
+        take: limit,
+      })
     })
   }
 
-  async getProductsByName(page: number, keyword: string, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
+  async getProductsByName(keyword: string, page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
-        ...productListItemParams(categoryId),
+        ...productListItemParams([categoryId]),
         ...this.paginationService.getPaginationParams(page),
         where: {
           name: {
@@ -73,6 +84,6 @@ export class ProductService {
   }
 
   async getProductById(id: number): Promise<Product> {
-    return await this.findOne({ id });
+    return await this.prisma.product.findUnique({ where: { id } });
   }
 }

@@ -4,6 +4,7 @@ import { CouponService } from './coupon.service';
 
 @Module({
   imports: [PrismaModule],
-  providers: [CouponService]
+  providers: [CouponService],
+  exports: [CouponService]
 })
 export class CouponModule {}
