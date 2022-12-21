@@ -170,11 +170,6 @@ export class AuthService {
     return user;
   }
 
-  async verifyAdmin(userId: number) {
-    const user : User = await this.userService.findOne({ id: userId });
-    return user.role === Role.ADMIN;
-  }
-
   async verifyEmailToken(token: string) {
     const payload: JwtPayload = this.verifyToken(token, this.jwtConfig.emailVerificationSecret);
 
