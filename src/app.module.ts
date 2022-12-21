@@ -14,6 +14,7 @@ import { FormatResponseInterceptor } from './common/interceptors/format-response
 import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
 import { ProductModule } from './product/product.module';
 import { CouponModule } from './coupon/coupon.module';
+import { PaginationModule } from './pagination/pagination.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CouponModule } from './coupon/coupon.module';
     MailModule,
     ProductModule,
     CouponModule,
+    PaginationModule,
   ],
   controllers: [AppController],
   providers: [

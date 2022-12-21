@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { PaginationModule } from 'src/pagination/pagination.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
@@ -7,7 +7,7 @@ import { ProductService } from './product.service';
 @Module({
   imports: [
     PrismaModule,
-    ConfigModule
+    PaginationModule
   ],
   controllers: [ProductController],
   providers: [ProductService]

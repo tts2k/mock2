@@ -4,3 +4,7 @@ export interface PaginatedList<T> {
   page: number
 }
 
+export interface PaginationFindParams {
+  take: number,
+  skip: number
+}

@@ -1,28 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Prisma, Product } from '@prisma/client';
-import { PaginatedList } from 'src/common/pagination/pagination.interface';
+import { PaginatedList } from 'src/pagination/pagination.interface';
+import { PaginationService } from 'src/pagination/pagination.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { productListItemParams } from './product.helpers';
 import { ProductListItem } from './product.interface';
 
 @Injectable()
 export class ProductService {
-  private readonly itemNum: number;
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) { 
-    this.itemNum = this.configService.get<number>('PAGINATION_ITEM_NUM');
-  }
-  
-  private paginate(page: number): { take: number, skip: number } {
-    return {
-      take: this.itemNum,
-      skip: (page - 1) * this.itemNum
-    }
-  }
+    private readonly paginationService: PaginationService
+  ) { }
 
   async findOne(where: Prisma.ProductWhereUniqueInput): Promise<Product> {
     return this.prisma.product.findUnique({ where });
@@ -50,7 +40,7 @@ export class ProductService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         ...productListItemParams(categoryId),
-        ...this.paginate(page),
+        ...this.paginationService.getPaginationParams(page),
       }),
       this.prisma.product.count()
     ])
@@ -69,7 +59,7 @@ export class ProductService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         ...productListItemParams(categoryId),
-        ...this.paginate(page),
+        ...this.paginationService.getPaginationParams(page),
         where: {
           name: {
             contains: keyword
