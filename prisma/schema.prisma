@@ -7,11 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 model User {
   id               Int                @id @default(autoincrement())
   username         String             @unique
   email            String             @unique
-  role             Role               @default(USER)
   password         String
   active           Boolean            @default(false)
   verifyEmail      Boolean            @default(false)
@@ -20,12 +23,48 @@ model User {
   avatar           String?
   phoneNumber      String?
   userId           Int?               @unique
-  address          Address?           @relation(fields: [addressId], references: [id])
   addressId        Int?
+  role             Role[]
   reviews          Review[]
   orders           Order[]
   sessions         Session[]
-  NotificationSent NotificationSent[]
+  notificationSent NotificationSent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address Address? @relation(fields: [addressId], references: [id])
+}
+
+model Role {
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  permissionsOnRole PermissionsOnRole[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+}
+
+model PermissionsOnRole {
+  roleId       Int
+  permissionId Int
+  mode         PermMode
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
+model Permission {
+  id                Int                 @id @default(autoincrement())
+  name              String
+  permissionsOnRole PermissionsOnRole[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -252,11 +291,6 @@ enum PaymentType {
   ONLINE
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 enum OrderStatus {
   IN_CART
   PROCESSING
@@ -271,4 +305,9 @@ enum Rating {
   THREE_STARS
   FOUR_STARS
   FIVE_STARS
+}
+
+enum PermMode {
+  RO
+  RW
 }
