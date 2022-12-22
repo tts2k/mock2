@@ -189,7 +189,7 @@ model Review {
   content   String
   userId    Int
   productId Int
-  rating    Rating
+  rating    Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -297,14 +297,6 @@ enum OrderStatus {
   SHIPPING
   CANCELLED
   COMPLETED
-}
-
-enum Rating {
-  ONE_STAR
-  TWO_STARS
-  THREE_STARS
-  FOUR_STARS
-  FIVE_STARS
 }
 
 enum PermMode {
