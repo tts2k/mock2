@@ -21,17 +21,11 @@ export class UserService {
     data: Prisma.UserUpdateInput
   }, tx?: Prisma.TransactionClient): Promise<User> {
     const { where, data } = params;
-    if (tx) {
-      return tx.user.update({ data, where })
-    }
-    return this.prisma.user.update({ data, where })
+    return tx.user.update({ data, where })
   }
 
-  async create(data: Prisma.UserCreateInput, tx?: Prisma.TransactionClient): Promise<User> {
-    if (tx) {
-      return tx.user.create({ data })
-    }
-    return this.prisma.user.create({ data });
+  async create(data: Prisma.UserCreateInput, tx: Prisma.TransactionClient): Promise<User> {
+    return tx.user.create({ data })
   }
 
   async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {

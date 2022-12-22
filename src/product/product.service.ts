@@ -19,17 +19,11 @@ export class ProductService {
     data: Prisma.ProductUpdateInput,
     tx?: Prisma.TransactionClient
   ): Promise<Product> {
-    if (tx) {
-      return tx.product.update({ where, data });
-    }
-    return this.prisma.product.update({ where, data })
+    return tx.product.update({ where, data });
   }
 
   async create(data: Prisma.ProductCreateInput, tx?: Prisma.TransactionClient): Promise<Product> {
-    if (tx) {
-      return tx.product.create({ data });
-    }
-    return this.prisma.product.create(({ data }));
+    return tx.product.create({ data });
   }
 
   async getAllProducts(page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
