@@ -1,11 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator'
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString } from 'class-validator'
 import { PagedQueryDto } from 'src/pagination/dto/paged-query.dto';
 
 export class GetAllProductsQueryDto extends PagedQueryDto {
   @ApiProperty({ required: false })
-  @IsNumber()
+  @IsInt()
   @IsOptional()
+  @Type(() => Number)
   categoryId?: number;
 
   @ApiProperty({ required: false })

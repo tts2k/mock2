@@ -33,6 +33,8 @@ export class ProductController {
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
   async getAllProducts(@Query() query: GetAllProductsQueryDto): Promise<PaginatedList<ProductListItem>> {
     const { categoryId, page, q } = query;
+    console.log(categoryId);
+    console.log(query);
 
     return q 
       ? await this.productService.getProductsByName(q, page, categoryId)
