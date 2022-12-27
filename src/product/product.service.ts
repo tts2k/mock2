@@ -25,6 +25,8 @@ export class ProductService {
       color: value.color
     }))
 
+    console.log(mappedCategoryIds);
+
     const data: Prisma.ProductCreateInput = {
       name: dto.name,
       sku: dto.sku,
@@ -92,7 +94,8 @@ export class ProductService {
     return await this.getAllProducts(page, categoryId, {
       where: {
         name: {
-          contains: keyword
+          contains: keyword,
+          mode: 'insensitive'
         },
       }
     });
