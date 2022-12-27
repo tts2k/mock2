@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Product } from '@prisma/client';
 import { ColorService } from 'src/color/color.service';
 import { PaginatedList } from 'src/pagination/pagination.interface';
@@ -82,8 +82,10 @@ export class ProductService {
     return { items, total, page }
   }
 
+  /* untested */
   async getRelatedProducts(productId: number, limit: number): Promise<ProductListItem[]> {
     return await this.prisma.$transaction(async (tx) => {
+
       const productCategories = await tx.product.findUnique({
         where: { id: productId },
         select: { 
@@ -99,6 +101,15 @@ export class ProductService {
 
       return tx.product.findMany({
         ...productListItemParams,
+        where: {
+          categories: {
+            every: {
+              categoryId: {
+                in: categoryIds
+              }
+            }
+          }
+        },
         take: limit,
       });
     })
@@ -126,7 +137,12 @@ export class ProductService {
   }
 
   async getProductById(id: number): Promise<Product> {
-    return await this.prisma.product.findUnique({ where: { id } });
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      throw new NotFoundException("Product not found");
+    }
+
+    return product
   }
 
   async deleteProduct(id: number): Promise<void> {

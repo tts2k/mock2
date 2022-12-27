@@ -1,17 +1,24 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { ServerResponse } from "http";
 import { map, Observable } from "rxjs";
+import { RetType } from "../common.interface";
 
 @Injectable()
 export class FormatResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
     const response = context.switchToHttp().getResponse<ServerResponse>();
+    const defaultRes: RetType<any> = {
+      message: "Success",
+      data: null
+    }
 
     return next.handle().pipe(map(value => {
-      value = value ? value : { message: "Success" };
+      const res = defaultRes;
+      Object.assign(res, value);
+
       return { 
         statusCode: response.statusCode,
-        ...value
+        ...res
       }
     }))
   }

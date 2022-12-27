@@ -17,6 +17,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { CreateCouponDto } from './dto/create-coupon-dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ColorService } from 'src/color/color.service';
+import { RetType } from 'src/common/common.interface';
 
 @ApiTags('products')
 @Controller('products')
@@ -31,35 +32,38 @@ export class ProductController {
   @Get()
   @ApiOperation({ summary: "Get all products" })
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
-  async getAllProducts(@Query() query: GetAllProductsQueryDto): Promise<PaginatedList<ProductListItem>> {
+  async getAllProducts(@Query() query: GetAllProductsQueryDto): Promise<RetType<PaginatedList<ProductListItem>>> {
     const { categoryId, page, q } = query;
     console.log(categoryId);
     console.log(query);
-
-    return q 
+    const res = {
+      data: q 
       ? await this.productService.getProductsByName(q, page, categoryId)
       : await this.productService.getAllProducts(page, categoryId);
+    }
+      
+    return res;
   }
 
   @Post()
   @ApiOperation({ summary: "Create new product" })
   @ApiResponse({ status: HttpStatus.CREATED, description: "Product created" })
-  async createProduct(@Body() createProductDto: CreateProductDto): Promise<Product> {
-    return await this.productService.create(createProductDto);
+  async createProduct(@Body() createProductDto: CreateProductDto): Promise<RetType<Product>> {
+    return { data: await this.productService.create(createProductDto) };
   }
 
   @Get('top')
   @ApiOperation({ summary:  "Get top products"})
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
-  async getTopProducts(@Query() getTopProductsQueryDto: GetAllProductsQueryDto): Promise<PaginatedList<ProductListItem>> {
+  async getTopProducts(@Query() getTopProductsQueryDto: GetAllProductsQueryDto): Promise<RetType<PaginatedList<ProductListItem>>> {
     const { page, categoryId, } = getTopProductsQueryDto;
-    return await this.productService.getTopProducts(page, categoryId);
+    return { data : await this.productService.getTopProducts(page, categoryId) };
   }
   @Get(':id')
   @ApiOperation({ summary: "Get product detail from a product id"})
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
-  async getProduct(@Param() params: GetProductParamDto): Promise<Product> {
-    return await this.productService.getProductById(params.id);
+  async getProduct(@Param() params: GetProductParamDto): Promise<RetType<Product>> {
+    return { data: await this.productService.getProductById(params.id) }
   }
 
   @Delete(':id')
@@ -81,8 +85,8 @@ export class ProductController {
   async getRelated(
     @Query() query: GetRelatedProductQueryDto,
     @Param() params: GetProductParamDto
-  ): Promise<ProductListItem[]> {
-    return await this.productService.getRelatedProducts(params.id, query.limit);
+  ): Promise<RetType<ProductListItem[]>> {
+    return { data: await this.productService.getRelatedProducts(params.id, query.limit) };
   }
 
   @Get('verify-coupon')
@@ -91,15 +95,15 @@ export class ProductController {
   async verifyCoupton(
     @Query() query: ValidateCouponQueryDto,
     @Param() params: GetProductParamDto
-  ): Promise<CouponRO> {
-    return await this.couponService.validateCoupon(query.code, params.id)
+  ): Promise<RetType<CouponRO>> {
+    return { data: await this.couponService.validateCoupon(query.code, params.id) }
   }
 
   @Get(':id/reviews')
   @ApiOperation({ summary: "Get all reviews of a product" })
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
-  async getReviews(@Param() params: GetProductParamDto): Promise<Review[]> {
-    return await this.reviewService.getReviewsByProductId(params.id);
+  async getReviews(@Param() params: GetProductParamDto): Promise<RetType<Review[]>> {
+    return {data: await this.reviewService.getReviewsByProductId(params.id) };
   }
 
   @Post(':id/review')
@@ -109,10 +113,10 @@ export class ProductController {
     @Param() params: GetProductParamDto,
     @Body() submitReviewDto: SubmitReviewDto,
     @Req() req: Readonly<ReqWithUser>
-  ){
+  ): Promise<RetType<Review>>{
     const user = req.user;
 
-    return await this.reviewService.createReview({
+    const review = await this.reviewService.createReview({
       content: submitReviewDto.content,
       rating: submitReviewDto.rating,
       user: {
@@ -126,14 +130,16 @@ export class ProductController {
         }
       }
     }) 
+
+    return { data: review }
   }
 
   @Post(':id/coupon')
   async createCoupon(
     @Param() params: GetProductParamDto,
     @Body() createCouponDto: CreateCouponDto
-  ): Promise<Coupon> {
+  ): Promise<RetType<Coupon>> {
     const { code, expiresInDays } = createCouponDto;
-    return await this.couponService.createCoupon(code, params.id, expiresInDays);
+    return { data: await this.couponService.createCoupon(code, params.id, expiresInDays) };
   }
 }
