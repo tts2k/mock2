@@ -20,6 +20,13 @@ export class PrismaFilter extends BaseExceptionFilter {
         fields: exception.meta.target
       })
     }
+    else if (exception.code === 'P2003') {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "Foreign key constraint error. Please check your foreign key id(s).",
+        field: exception.meta.field_name
+      })
+    }
     else {
       super.catch(exception, host);
     }
