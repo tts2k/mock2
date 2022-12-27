@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import * as _ from "lodash"
 
 export const productListItemParams = (categoryIds?: number[]) => Prisma.validator<Prisma.ProductArgs>()({
   select: {
@@ -22,4 +23,3 @@ export const productListItemParams = (categoryIds?: number[]) => Prisma.validato
     }
   }
 })
-

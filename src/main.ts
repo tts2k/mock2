@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaFilter } from './prisma/prisma.filter';
 import { FormatResponseInterceptor } from './common/interceptors/format-response.interceptor';
 
+declare const module: any;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -32,5 +34,10 @@ async function bootstrap() {
   await app.listen(port, () => {
     Logger.log(`Listening on port ${port}`)
   });
+
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close())
+  }
 }
 bootstrap()

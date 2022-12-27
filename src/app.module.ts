@@ -15,6 +15,8 @@ import { AppLoggerMiddleware } from './common/middlewares/logging.middleware';
 import { ProductModule } from './product/product.module';
 import { CouponModule } from './coupon/coupon.module';
 import { PaginationModule } from './pagination/pagination.module';
+import { ReviewModule } from './review/review.module';
+import { ColorModule } from './color/color.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { PaginationModule } from './pagination/pagination.module';
     ProductModule,
     CouponModule,
     PaginationModule,
+    ReviewModule,
+    ColorModule,
   ],
   controllers: [AppController],
   providers: [

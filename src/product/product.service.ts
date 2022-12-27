@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Product } from '@prisma/client';
+import { ColorService } from 'src/color/color.service';
 import { PaginatedList } from 'src/pagination/pagination.interface';
 import { PaginationService } from 'src/pagination/pagination.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { productListItemParams } from './product.helpers';
 import { ProductListItem } from './product.interface';
 
@@ -11,26 +14,51 @@ export class ProductService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly paginationService: PaginationService
+    private readonly paginationService: PaginationService,
+    private readonly colorService: ColorService
   ) { }
 
-  async update(
-    where: Prisma.ProductWhereUniqueInput,
-    data: Prisma.ProductUpdateInput,
-    tx?: Prisma.TransactionClient
-  ): Promise<Product> {
-    return tx.product.update({ where, data });
+  async create(dto: CreateProductDto): Promise<Product> {
+    const mappedCategoryIds = dto.categoryIds.map((value: number) => ({ categoryId: value }));
+    const mappedColors = dto.colors.map((value) => ({
+      name: value.name,
+      color: value.color
+    }))
+
+    const data: Prisma.ProductCreateInput = {
+      name: dto.name,
+      sku: dto.sku,
+      price: dto.price,
+      qty: dto.qty,
+      description: dto.description,
+      categories: {
+        createMany: {
+          data: mappedCategoryIds
+        }
+      },
+      colors: {
+        createMany: {
+          data: mappedColors
+        }
+      }
+    }
+
+    return await this.prisma.product.create({ data })
   }
 
-  async create(data: Prisma.ProductCreateInput, tx?: Prisma.TransactionClient): Promise<Product> {
-    return tx.product.create({ data });
-  }
-
-  async getAllProducts(page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
+  async getAllProducts(
+    page: number,
+    categoryId?: number,
+    additionalOptions?: {
+      orderBy?: Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>,
+      where?: Prisma.ProductWhereInput
+    }
+  ): Promise<PaginatedList<ProductListItem>> {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         ...productListItemParams([categoryId]),
         ...this.paginationService.getPaginationParams(page),
+        ...additionalOptions
       }),
       this.prisma.product.count()
     ])
@@ -56,28 +84,68 @@ export class ProductService {
       return tx.product.findMany({
         ...productListItemParams(categoryIds),
         take: limit,
-      })
+      });
     })
   }
 
   async getProductsByName(keyword: string, page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.product.findMany({
-        ...productListItemParams([categoryId]),
-        ...this.paginationService.getPaginationParams(page),
-        where: {
-          name: {
-            contains: keyword
-          },
-        }
-      }),
-      this.prisma.product.count()
-    ])
+    return await this.getAllProducts(page, categoryId, {
+      where: {
+        name: {
+          contains: keyword
+        },
+      }
+    });
+  }
 
-    return { items, total, page }
+  async getTopProducts(page: number, categoryId?: number): Promise<PaginatedList<ProductListItem>> {
+    return await this.getAllProducts(page, categoryId, {
+      orderBy: [
+        {
+          sold: 'desc'
+        }
+      ]
+    });
   }
 
   async getProductById(id: number): Promise<Product> {
     return await this.prisma.product.findUnique({ where: { id } });
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    await this.prisma.product.delete({
+      where: { id },
+    });
+
+    return;
+  }
+
+  async updateProduct(productId: number, dto: UpdateProductDto): Promise<void> {
+    const mappedCategoryIds = dto.categoryIds.map((value: number) => ({ categoryId: value }));
+
+    const data: Prisma.ProductUpdateInput = {
+      name: dto.name,
+      sku: dto.sku,
+      price: dto.price,
+      qty: dto.qty,
+      description: dto.description,
+      categories: {
+        deleteMany: {},
+        createMany: {
+          data: mappedCategoryIds
+        }
+      }
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const productPromise = tx.product.update({
+        data,
+        where: { id: productId },
+      })
+
+      const colorPromise = this.colorService.updateColors(dto.colors, tx);
+
+      await Promise.all([productPromise, colorPromise]);
+    })
   }
 }
