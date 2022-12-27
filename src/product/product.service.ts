@@ -51,16 +51,30 @@ export class ProductService {
   async getAllProducts(
     page: number,
     categoryId?: number,
-    additionalOptions?: {
+    additionalOptions: {
       orderBy?: Prisma.Enumerable<Prisma.ProductOrderByWithRelationInput>,
       where?: Prisma.ProductWhereInput
-    }
+    } = {}
   ): Promise<PaginatedList<ProductListItem>> {
+    const categoryWhereClause: Prisma.ProductWhereInput = {
+      categories: {
+        some: {
+          categoryId: categoryId
+        }
+      }
+    }
+    
+    const whereClause: Prisma.ProductWhereInput = {
+      ...(additionalOptions.where ? additionalOptions.where : {}),
+      ...(categoryId ? categoryWhereClause : {})
+    };
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
-        ...productListItemParams([categoryId]),
+        ...productListItemParams,
         ...this.paginationService.getPaginationParams(page),
-        ...additionalOptions
+        where: whereClause,
+        orderBy: additionalOptions.orderBy
       }),
       this.prisma.product.count()
     ])
@@ -84,7 +98,7 @@ export class ProductService {
       const categoryIds = productCategories.categories.map(e => e.categoryId);
 
       return tx.product.findMany({
-        ...productListItemParams(categoryIds),
+        ...productListItemParams,
         take: limit,
       });
     })

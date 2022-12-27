@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import * as _ from "lodash"
 
-export const productListItemParams = (categoryIds?: number[]) => Prisma.validator<Prisma.ProductFindManyArgs>()({
+export const productListItemParams = Prisma.validator<Prisma.ProductFindManyArgs>()({
   select: {
     id: true,
     name: true,
@@ -17,13 +17,4 @@ export const productListItemParams = (categoryIds?: number[]) => Prisma.validato
       },
     }
   },
-  where: {
-    categories: {
-      some: {
-        categoryId: {
-          in: categoryIds
-        }
-      }
-    }
-  }
 })
