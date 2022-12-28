@@ -16,7 +16,6 @@ import { ReqWithUser } from 'src/auth/auth.interface';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateCouponDto } from './dto/create-coupon-dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ColorService } from 'src/color/color.service';
 import { RetType } from 'src/common/common.interface';
 
 @ApiTags('products')
@@ -26,7 +25,6 @@ export class ProductController {
     private readonly productService: ProductService,
     private readonly couponService: CouponService,
     private readonly reviewService: ReviewService,
-    private readonly colorService: ColorService
   ){ }
 
   @Get()
@@ -39,7 +37,7 @@ export class ProductController {
     const res = {
       data: q 
       ? await this.productService.getProductsByName(q, page, categoryId)
-      : await this.productService.getAllProducts(page, categoryId);
+      : await this.productService.getAllProducts(page, categoryId)
     }
       
     return res;
@@ -79,6 +77,7 @@ export class ProductController {
     return await this.productService.updateProduct(params.id, updateProductDto);
   }
 
+  /* Untested */
   @Get('id/related')
   @ApiOperation({ summary: "Get product"})
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
@@ -89,6 +88,7 @@ export class ProductController {
     return { data: await this.productService.getRelatedProducts(params.id, query.limit) };
   }
 
+  /* Untested */
   @Get('verify-coupon')
   @ApiOperation({ summary: "Verify coupon" })
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
@@ -99,6 +99,7 @@ export class ProductController {
     return { data: await this.couponService.validateCoupon(query.code, params.id) }
   }
 
+  /* Untested */
   @Get(':id/reviews')
   @ApiOperation({ summary: "Get all reviews of a product" })
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
@@ -106,6 +107,7 @@ export class ProductController {
     return {data: await this.reviewService.getReviewsByProductId(params.id) };
   }
 
+  /* Untested */
   @Post(':id/review')
   @ApiOperation({ summary: "Submit new review" })
   @ApiResponse({ status: HttpStatus.CREATED, description: "Review created" })
@@ -134,6 +136,7 @@ export class ProductController {
     return { data: review }
   }
 
+  /* Untested */
   @Post(':id/coupon')
   async createCoupon(
     @Param() params: GetProductParamDto,
