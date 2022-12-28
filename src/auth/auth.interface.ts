@@ -1,3 +1,12 @@
+import { Request } from "express";
+
+export interface JwtUser {
+  username: string,
+  userId: number
+}
+
+export type ReqWithUser = Request & { user: JwtUser }
+
 export enum TokenType {
   ACCESS = 'access',
   REFRESH = 'refresh',
