@@ -275,42 +275,42 @@ Ref: User.addressId > Address.id
 
 Ref: Role.userId > User.id
 
-Ref: PermissionsOnRole.roleId > Role.id
+Ref: PermissionsOnRole.roleId > Role.id [delete: Cascade]
 
-Ref: PermissionsOnRole.permissionId > Permission.id
+Ref: PermissionsOnRole.permissionId > Permission.id [delete: Cascade]
 
-Ref: Session.userId > User.id
+Ref: Session.userId > User.id [delete: Cascade]
 
 Ref: Product.brandId > Brand.id
 
-Ref: ProductColor.productId > Product.id
+Ref: ProductColor.productId > Product.id [delete: Cascade]
 
-Ref: Coupon.productId > Product.id
+Ref: Coupon.productId > Product.id [delete: Cascade]
 
-Ref: ProductSnapshot.productId > Product.id
+Ref: ProductSnapshot.productId > Product.id [delete: Cascade]
 
-Ref: ProductSnapshot.orderId > Order.id
+Ref: ProductSnapshot.orderId > Order.id [delete: Cascade]
 
-Ref: CategoriesOnProducts.productId > Product.id
+Ref: CategoriesOnProducts.productId > Product.id [delete: Cascade]
 
-Ref: CategoriesOnProducts.categoryId > Category.id
+Ref: CategoriesOnProducts.categoryId > Category.id [delete: Cascade]
 
-Ref: Review.userId > User.id
+Ref: Review.userId > User.id [delete: Cascade]
 
-Ref: Review.productId > Product.id
+Ref: Review.productId > Product.id [delete: Cascade]
 
 Ref: Order.shippingAddressId > Address.id
 
-Ref: Order.userId > User.id
+Ref: Order.userId > User.id [delete: Cascade]
 
 Ref: Order.paymentsId > Payment.id
 
 Ref: Order.shippingMethodId > ShippingMethod.id
 
-Ref: ProductsOnCart.productId > Product.id
+Ref: ProductsOnCart.productId > Product.id [delete: Cascade]
 
-Ref: ProductsOnCart.cardId > Cart.id
+Ref: ProductsOnCart.cardId > Cart.id [delete: Cascade]
 
-Ref: NotificationSent.notificationId > Notification.id
+Ref: NotificationSent.notificationId > Notification.id [delete: Cascade]
 
-Ref: NotificationSent.recipentId > User.id
+Ref: NotificationSent.recipentId > User.id [delete: Cascade]

@@ -55,8 +55,8 @@ model PermissionsOnRole {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  role       Role       @relation(fields: [roleId], references: [id])
-  permission Permission @relation(fields: [permissionId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
 }
@@ -89,7 +89,7 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -127,7 +127,7 @@ model ProductColor {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Coupon {
@@ -139,7 +139,7 @@ model Coupon {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product? @relation(fields: [productId], references: [id])
+  product Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ProductSnapshot {
@@ -150,8 +150,8 @@ model ProductSnapshot {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Brand {
@@ -179,8 +179,8 @@ model CategoriesOnProducts {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product  Product  @relation(fields: [productId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([productId, categoryId])
 }
@@ -195,8 +195,8 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {
@@ -213,7 +213,7 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User           User?          @relation(fields: [userId], references: [id])
+  User           User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   Payments       Payment        @relation(fields: [paymentsId], references: [id])
   shippingMethod ShippingMethod @relation(fields: [shippingMethodId], references: [id])
 }
@@ -231,8 +231,8 @@ model ProductsOnCart {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id])
-  cart    Cart    @relation(fields: [cardId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cart    Cart    @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   @@id([productId, cardId])
 }
@@ -278,8 +278,8 @@ model NotificationSent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  notification Notification @relation(fields: [notificationId], references: [id])
-  recipent     User         @relation(fields: [recipentId], references: [id])
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  recipent     User         @relation(fields: [recipentId], references: [id], onDelete: Cascade)
 }
 
 enum NotificationType {
