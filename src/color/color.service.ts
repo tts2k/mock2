@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, ProductColor } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateColorDto } from 'src/product/dto/update-product.dto';
+import * as _ from 'lodash';
 
 @Injectable()
 export class ColorService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async updateColors(data: UpdateColorDto[], tx: Prisma.TransactionClient): Promise<void> {
-    const colorIds: number[] = [];
+  async updateColors(data: UpdateColorDto[], productId: number, tx: Prisma.TransactionClient): Promise<void> {
+    let colorIds: number[] = [];
 
     const upsertPromises = data.map(d => {
       // Extract color id to a separate array
@@ -24,7 +25,7 @@ export class ColorService {
           name: d.name,
           product: {
             connect: {
-              id: d.productId
+              id: productId
             },
           }
         },
@@ -34,6 +35,9 @@ export class ColorService {
         }
       })
     });
+
+    // Cleansing undefined values
+    colorIds = _.compact(colorIds);
 
     // Find colors to delete
     const colorsToDelete: { id: number }[] = await tx.productColor.findMany({
