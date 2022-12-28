@@ -9,7 +9,6 @@ export class FormatResponseInterceptor implements NestInterceptor {
     const response = context.switchToHttp().getResponse<ServerResponse>();
     const defaultRes: RetType<any> = {
       message: "Success",
-      data: null
     }
 
     return next.handle().pipe(map(value => {
