@@ -137,7 +137,28 @@ export class ProductService {
   }
 
   async getProductById(id: number): Promise<Product> {
-    const product = await this.prisma.product.findUnique({ where: { id } });
+    const product = await this.prisma.product.findUnique({ 
+      where: { id },
+      include: {
+        categories: {
+          select: {
+            category: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        },
+        colors: {
+          select: {
+            id: true,
+            name: true,
+            color: true
+          }
+        }
+      }
+    });
     if (!product) {
       throw new NotFoundException("Product not found");
     }
@@ -169,14 +190,13 @@ export class ProductService {
         }
       }
     }
-
     return await this.prisma.$transaction(async (tx) => {
       const productPromise = tx.product.update({
         data,
         where: { id: productId },
       })
 
-      const colorPromise = this.colorService.updateColors(dto.colors, tx);
+      const colorPromise = this.colorService.updateColors(dto.colors, productId, tx);
 
       await Promise.all([productPromise, colorPromise]);
     })
