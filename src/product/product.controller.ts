@@ -104,7 +104,7 @@ export class ProductController {
   @ApiOperation({ summary: "Get all reviews of a product" })
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
   async getReviews(@Param() params: GetProductParamDto): Promise<RetType<Review[]>> {
-    return {data: await this.reviewService.getReviewsByProductId(params.id) };
+    return { data: await this.reviewService.getReviewsByProductId(params.id) };
   }
 
   /* Untested */
