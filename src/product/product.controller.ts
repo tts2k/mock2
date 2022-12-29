@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Coupon, Product, Review } from '@prisma/client';
 import { CouponService } from 'src/coupon/coupon.service';
@@ -17,6 +17,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { CreateCouponDto } from './dto/create-coupon-dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { RetType } from 'src/common/common.interface';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @ApiTags('products')
 @Controller('products')
@@ -57,10 +58,12 @@ export class ProductController {
     const { page, categoryId, } = getTopProductsQueryDto;
     return { data : await this.productService.getTopProducts(page, categoryId) };
   }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: "Get product detail from a product id"})
   @ApiResponse({ status: HttpStatus.OK, description: "Success" })
-  async getProduct(@Param() params: GetProductParamDto): Promise<RetType<Product>> {
+  async getProduct(@Param() params: GetProductParamDto, @Req() req: Readonly<ReqWithUser>): Promise<RetType<Product>> {
     return { data: await this.productService.getProductById(params.id) }
   }
 

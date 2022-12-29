@@ -1,8 +1,12 @@
+import { PermMode } from "@prisma/client";
 import { Request } from "express";
+
+export class JwtUserPerm extends Map<string, PermMode> { }
 
 export interface JwtUser {
   username: string,
-  userId: number
+  userId: number,
+  perms: JwtUserPerm
 }
 
 export type ReqWithUser = Request & { user: JwtUser }

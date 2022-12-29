@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import * as _ from "lodash"
 
 export const productListItemParams = Prisma.validator<Prisma.ProductFindManyArgs>()({
   select: {

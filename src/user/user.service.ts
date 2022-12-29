@@ -1,8 +1,10 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "@prisma/client"
 import { compare } from "bcrypt";
 import { addDays, compareAsc } from "date-fns";
+import { UserAuth } from "./user.interface";
+import { findUniqueForAuthParams } from "./user.helpers";
 
 @Injectable()
 export class UserService {
@@ -12,7 +14,7 @@ export class UserService {
     where: Prisma.UserWhereUniqueInput,
   ): Promise<User | null> {
     return this.prisma.user.findUnique({
-      where 
+      where,
     })
   }
 
@@ -68,5 +70,18 @@ export class UserService {
         password: newPassword
       }
     })
+  }
+
+  async getUserForAuth(userId: number): Promise<UserAuth> {
+    const user =  await this.prisma.user.findUnique({
+      ...findUniqueForAuthParams,
+      where: { id: userId }
+    })
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    return user;
   }
 }
