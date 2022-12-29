@@ -59,7 +59,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
     switch(method) {
       case 'PUT':
       case 'POST':
-      case 'PATH':
+      case 'PATCH':
       case 'DELETE':
         routeMode = PermMode.RW;
         break;
