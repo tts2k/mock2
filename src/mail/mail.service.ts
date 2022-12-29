@@ -26,7 +26,7 @@ export class MailService {
   }
 
   private async sendEmailWithTemplate(options: Mail.Options, config: TemplateConfig) {
-    const templateBuffer = await fs.readFile(join(__dirname, `/templates/${config.name}.hbs`))
+    const templateBuffer = await fs.readFile(join(__dirname, `mail/templates/${config.name}.hbs`))
     const html = Handlebars.compile(templateBuffer.toString());
     return await this.transporter.sendMail({
       ...options,
