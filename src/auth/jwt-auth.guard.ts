@@ -21,6 +21,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
       throw err || new UnauthorizedException();
     }
 
+    // Check if route is allowed to bypass perm check
+    const ignorePerms = this.reflector.get<boolean>('ignorePerms', context.getHandler());
+    if (ignorePerms) {
+      return user;
+    }
+
     let userMode: PermMode = null; // Default user mode as RO
     // Get perms that route required, return if none was found
     const routePermModes: string[] = this.reflector.get<string[]>('perms', context.getClass());
