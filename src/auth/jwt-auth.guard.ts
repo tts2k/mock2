@@ -44,9 +44,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
         continue;
       }
 
-      userMode =  urpm
+      // Allow admin role to have all rights regardless of mode
+      if (rpm === 'admin') {
+        return user;
+      }
+
+      userMode = urpm
       
-      // If RW, end the loop because there can't be higher authority
+      // If RW, end the loop because there can't be a higher authority
       if (userMode === PermMode.RW) {
         break;
       }
