@@ -10,10 +10,10 @@ Table User {
   active Boolean [not null, default: false]
   verifyEmail Boolean [not null, default: false]
   verifyContact Boolean [not null, default: false]
+  isAdmin Boolean [not null, default: false]
   name String
   avatar String
   phoneNumber String
-  userId Int [unique]
   addressId Int
   role Role [not null]
   reviews Review [not null]
@@ -29,10 +29,10 @@ Table Role {
   id Int [pk, increment]
   name String [unique, not null]
   permissionsOnRole PermissionsOnRole [not null]
+  userId Int
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   User User
-  userId Int
 }
 
 Table PermissionsOnRole {
@@ -51,7 +51,7 @@ Table PermissionsOnRole {
 
 Table Permission {
   id Int [pk, increment]
-  name String [not null]
+  name String [unique, not null]
   permissionsOnRole PermissionsOnRole [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]

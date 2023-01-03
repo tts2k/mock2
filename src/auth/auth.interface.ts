@@ -6,6 +6,7 @@ export class JwtUserPerm extends Map<string, PermMode> { }
 export interface JwtUser {
   username: string,
   userId: number,
+  isAdmin: boolean;
   perms: JwtUserPerm
 }
 
@@ -17,6 +18,7 @@ export enum TokenType {
   VERIFY_EMAIL = 'verify_email',
   RESET_PASSWORD = 'reset_password'
 }
+
 export interface AuthData {
   data: AuthRO,
   expires: {

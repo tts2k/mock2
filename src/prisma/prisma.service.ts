@@ -1,6 +1,6 @@
 import { INestApplication, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { HashPasswordMiddleware } from "./prisma.middleware";
+import { FilterAdminRight, HashPasswordMiddleware } from "./prisma.middleware";
 
 @Injectable()
 export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, 'info' | 'warn' | 'error' | 'query'> implements OnModuleInit {
@@ -22,6 +22,7 @@ export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, 'inf
     this.$on('warn', (e) => this.logger.warn(e.message))
 
     this.$use(HashPasswordMiddleware());
+    this.$use(FilterAdminRight());
   }
   
   async onModuleInit() {

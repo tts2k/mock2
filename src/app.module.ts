@@ -17,6 +17,8 @@ import { CouponModule } from './coupon/coupon.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { ReviewModule } from './review/review.module';
 import { ColorModule } from './color/color.module';
+import { RoleModule } from './role/role.module';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ColorModule } from './color/color.module';
     PaginationModule,
     ReviewModule,
     ColorModule,
+    RoleModule,
+    PermissionModule,
   ],
   controllers: [AppController],
   providers: [

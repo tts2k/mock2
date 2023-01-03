@@ -25,21 +25,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const perms: JwtUserPerm = new JwtUserPerm();
 
     // Get user permissions
-    user.role.forEach(u => {
-      u.permissionsOnRole.forEach(p => {
+    for (const u of user.role) {
+      if (user.isAdmin) {
+        break;
+      }
+
+      for (const p of u.permissionsOnRole) {
         // Make sure to not overwrite RW permission with RO if not duplicate
-        if (p.mode === PermMode.RO) {
-          perms.set(p.permission.name, (perms.get(p.permission.name) !== PermMode.RW) ? PermMode.RO : PermMode.RW)
+        if (perms.get(p.permission.name) !== PermMode.RW) {
+          continue;
         }
-        else {
-          perms.set(p.permission.name, p.mode);
-        }
-      })
-    });
+
+        perms.set(p.permission.name, p.mode);
+      }
+    }
 
     return {
-      userId: payload.sub,
-      username: payload.username,
+      userId: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
       perms
     }
   }

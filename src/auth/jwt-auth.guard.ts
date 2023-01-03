@@ -9,6 +9,7 @@ import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { PermMode } from "@prisma/client";
 import { ReqWithUser } from "./auth.interface";
+import * as _ from 'lodash';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate { 
@@ -27,6 +28,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
       return user;
     }
 
+    // Check user admin right
+    if (user.isAdmin) {
+      return user;
+    }
+
     let userMode: PermMode = null; // Default user mode as RO
     // Get perms that route required, return if none was found
     const routePermModes: string[] = this.reflector.get<string[]>('perms', context.getClass());
@@ -35,18 +41,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
     }
 
     // Loop through all perms assigned to this controller
-    for (const rpm in routePermModes) {
+    for (const rpm of routePermModes) {
       // Get user mode on this perm
       const urpm: PermMode = user.perms.get(rpm);
 
       // Skip if user doesn't have the perm
       if (!urpm) {
         continue;
-      }
-
-      // Allow admin role to have all rights regardless of mode
-      if (rpm === 'admin') {
-        return user;
       }
 
       userMode = urpm

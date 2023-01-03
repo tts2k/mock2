@@ -5,6 +5,7 @@ import { compare } from "bcrypt";
 import { addDays, compareAsc } from "date-fns";
 import { UserAuth } from "./user.interface";
 import { findUniqueForAuthParams } from "./user.helpers";
+import { exclude } from "src/common/common.utils";
 
 @Injectable()
 export class UserService {
@@ -23,11 +24,14 @@ export class UserService {
     data: Prisma.UserUpdateInput
   }, tx?: Prisma.TransactionClient): Promise<User> {
     const { where, data } = params;
-    return tx.user.update({ data, where })
+
+    const updateData = exclude(data, ['isAdmin']); // Make sure isAdmin cannot be included in data
+    return tx.user.update({ data: updateData, where })
   }
 
   async create(data: Prisma.UserCreateInput, tx: Prisma.TransactionClient): Promise<User> {
-    return tx.user.create({ data })
+    const createData = exclude(data, ['isAdmin']); // Make sure isAdmin cannot be included in data
+    return tx.user.create({ data: createData })
   }
 
   async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
@@ -73,7 +77,7 @@ export class UserService {
   }
 
   async getUserForAuth(userId: number): Promise<UserAuth> {
-    const user =  await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       ...findUniqueForAuthParams,
       where: { id: userId }
     })
@@ -83,5 +87,17 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async updateUserRoles(userId: number, roleIds: number[]) {
+    const mappedRoleIds: { id: number }[] = roleIds.map(r => ({ id: r }));
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        role: {
+          set: mappedRoleIds
+        }
+      }
+    })
   }
 }

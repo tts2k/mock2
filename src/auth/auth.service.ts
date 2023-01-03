@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, Role, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { JwtPayload, TokenType, AuthData, AuthRO } from './auth.interface';
 import { JwtConfig } from './auth.interface';
 import { SessionService } from 'src/session/session.service';
