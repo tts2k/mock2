@@ -21,7 +21,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RefreshTokenAuthDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { EmailAuthDto } from './dto/email.dto';
-import { ResetPasswordAuthDto } from './dto/resetPassword.dto';
+import { ResetPasswordAuthDto, ResetPasswordAuthQueryDto } from './dto/reset-password.dto';
 import { UseAuth, IgnoreAuth } from './auth.decorators';
 
 @ApiTags('auth')
@@ -43,6 +43,7 @@ export class AuthController {
   }
 
   @Put('register')
+  @IgnoreAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Register new user" })
   async register(@Body() createUserDto: CreateUserDto) {
@@ -64,6 +65,7 @@ export class AuthController {
   }
 
   @Post('refresh-tokens')
+  @IgnoreAuth()
   @ApiOperation({ summary: "Refresh tokens and create new session" })
   async refreshtoken(@Body() refreshTokenAuthDto: RefreshTokenAuthDto, @Req() req: Readonly<Request>) {
     const user: User = await this.authService.verifyRefreshToken(refreshTokenAuthDto.refreshToken);
@@ -83,6 +85,7 @@ export class AuthController {
   }
 
   @Post('resend-email')
+  @IgnoreAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Resend email verification"})
   async resendEmail(@Body() resendEmailAuthDto: EmailAuthDto) {
@@ -90,6 +93,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @IgnoreAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Request an email to reset password" })
   async requestResetPassword(@Body() requestResetPasswordAuthDto: EmailAuthDto) {
@@ -97,11 +101,10 @@ export class AuthController {
   }
 
   @Post('reset')
+  @IgnoreAuth()
   @ApiOperation({ summary: "Reset password" })
-  async resetPassword(@Body() resetPasswordAuthDto: ResetPasswordAuthDto, @Query('token') token: string) {
-    if (!token || token === '') {
-      throw new BadRequestException("Token must not be empty");
-    }
+  async resetPassword(@Body() resetPasswordAuthDto: ResetPasswordAuthDto, @Query() query: ResetPasswordAuthQueryDto) {
+    const { token } = query;
   
     this.authService.resetPassword(token, resetPasswordAuthDto.newPassword);
   }

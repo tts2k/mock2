@@ -7,3 +7,10 @@ export class ResetPasswordAuthDto {
   @IsNotEmpty()
   newPassword: string
 }
+
+export class ResetPasswordAuthQueryDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  token: string
+}
