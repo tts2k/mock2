@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       for (const p of u.permissionsOnRole) {
-        // Make sure to not overwrite RW permission with RO if not duplicate
+        // Make sure to not overwrite RW permission with RO if duplicate
         if (perms.get(p.permission.name) !== PermMode.RW) {
           continue;
         }

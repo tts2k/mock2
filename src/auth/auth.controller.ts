@@ -22,8 +22,10 @@ import { RefreshTokenAuthDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { EmailAuthDto } from './dto/email.dto';
 import { ResetPasswordAuthDto } from './dto/resetPassword.dto';
+import { UseAuth, IgnoreAuth } from './auth.decorators';
 
 @ApiTags('auth')
+@UseAuth()
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -32,6 +34,7 @@ export class AuthController {
   ) { }
 
   @Post('login')
+  @IgnoreAuth()
   @ApiOperation({ summary: "Login with email and password" })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'User does not exist or password is incorrect.' })
   async login(@Body() loginAuthDto: LoginAuthDto, @Req() req: Readonly<Request>): Promise<AuthRO> {
