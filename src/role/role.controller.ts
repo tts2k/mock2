@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
-import { UsePerms } from 'src/auth/use-perms.decorator';
+import { UseAuth } from 'src/auth/auth.decorators';
 
 @Controller('role')
-@UsePerms()
+@UseAuth()
 export class RoleController {
   
 }
