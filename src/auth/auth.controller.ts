@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -47,10 +46,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Register new user" })
   async register(@Body() createUserDto: CreateUserDto) {
-    const { username, password, email } = createUserDto;
-    await this.authService.registerAndSendComfirmEmail({
-      username, password, email
-    })
+    await this.authService.registerAndSendComfirmEmail(createUserDto);
 
     return { message: "User has been successfully created." }
   }
@@ -59,7 +55,7 @@ export class AuthController {
   @Post('logout')
   @ApiOperation({ summary: "Log out" })
   async logout(@Body() logoutAuthDto: RefreshTokenAuthDto) {
-    await this.sessionService.delete({ refreshToken: logoutAuthDto.refreshToken })
+    await this.sessionService.delete(logoutAuthDto);
 
     return { message: "Logged out" }
   }
@@ -74,13 +70,8 @@ export class AuthController {
 
   @Get('confirm')
   @ApiOperation({ summary: "Confirm email verification token "})
-  async verifyEmail(@Query('token') token: string) {
-    if (!token || token === "") {
-      throw new BadRequestException("Verification token must not be empty");
-    }
-
-    await this.authService.verifyEmailToken(token);
-
+  async verifyEmail(@Query() tokenDto: ResetPasswordAuthQueryDto) {
+    await this.authService.verifyEmailToken(tokenDto.token);
     return { message: "User verified" }
   }
 
@@ -105,7 +96,6 @@ export class AuthController {
   @ApiOperation({ summary: "Reset password" })
   async resetPassword(@Body() resetPasswordAuthDto: ResetPasswordAuthDto, @Query() query: ResetPasswordAuthQueryDto) {
     const { token } = query;
-  
     this.authService.resetPassword(token, resetPasswordAuthDto.newPassword);
   }
 }

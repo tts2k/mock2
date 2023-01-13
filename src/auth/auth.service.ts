@@ -144,7 +144,7 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    this.prismaService.$transaction(async (tx) => {
+    await this.prismaService.$transaction(async (tx) => {
       const payload: JwtPayload = this.verifyToken(token, this.jwtConfig.resetPasswordSecret);
 
       this.userService.update({
@@ -164,7 +164,7 @@ export class AuthService {
 
     const session = this.sessionService.findOne({ refreshToken });
     if (!session) {
-      throw new NotFoundException('Sesssion not found.')
+      throw new NotFoundException('Session not found.')
     }
 
     return user;

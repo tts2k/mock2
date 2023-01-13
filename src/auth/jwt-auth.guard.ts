@@ -9,7 +9,6 @@ import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { PermMode } from "@prisma/client";
 import { ReqWithUser } from "./auth.interface";
-import * as _ from 'lodash';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate { 
