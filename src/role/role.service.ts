@@ -5,13 +5,11 @@ import { RolePerm } from './role.interface';
 
 @Injectable()
 export class RoleService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createRole(name: string, perms: RolePerm[]): Promise<Role> {
     const mappedPermsData: Prisma.PermissionsOnRoleCreateManyRoleInput[] = perms.map(p => ({
-      permissionId: p.id,
+            permissionId: p.id,
       mode: p.mode
     }));
 
