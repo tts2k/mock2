@@ -19,12 +19,17 @@ import { ReviewModule } from './review/review.module';
 import { ColorModule } from './color/color.module';
 import { RoleModule } from './role/role.module';
 import { PermissionModule } from './permission/permission.module';
+import { OrderModule } from './order/order.module';
+import { CategoryModule } from './category/category.module';
+
+const ENV = process.env.NODE_ENV;
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validate,
-      cache: true
+      cache: true,
+      envFilePath: !ENV ? '.env' : `.env.${ENV}`
     }),
     PrismaModule,
     UserModule,
@@ -39,6 +44,8 @@ import { PermissionModule } from './permission/permission.module';
     ColorModule,
     RoleModule,
     PermissionModule,
+    OrderModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [
