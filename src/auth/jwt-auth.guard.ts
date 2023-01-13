@@ -8,6 +8,7 @@ import {
 import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { PermMode } from "@prisma/client";
+import { IGNORE_AUTH_METADATA, IGNORE_PERMS_METADATA, PERMS_METADATA } from "./auth.decorators";
 import { ReqWithUser } from "./auth.interface";
 
 @Injectable()
@@ -17,12 +18,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
   }
 
   handleRequest<TUser = any>(err: any, user: any, _: any, context: ExecutionContext): TUser {
+    const ignoreAuth = this.reflector.get<boolean>(IGNORE_AUTH_METADATA, context.getHandler());
+    if (ignoreAuth) {
+      return user;
+    }
+
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
 
     // Check if route is allowed to bypass perm check
-    const ignorePerms = this.reflector.get<boolean>('ignoreAuth', context.getHandler());
+    const ignorePerms = this.reflector.get<boolean>(IGNORE_PERMS_METADATA, context.getHandler());
     if (ignorePerms) {
       return user;
     }
@@ -34,7 +40,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
 
     let userMode: PermMode = null; // Default user mode as RO
     // Get perms that route required, return if none was found
-    const routePermModes: string[] = this.reflector.get<string[]>('perms', context.getClass());
+    const routePermModes: string[] = this.reflector.get<string[]>(PERMS_METADATA, context.getClass());
     if (!routePermModes) {
       return user;
     }

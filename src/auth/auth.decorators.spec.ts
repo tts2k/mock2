@@ -1,4 +1,4 @@
-import { UseAuth, IgnoreAuth, PERMS_METADATA, IGNORE_AUTH_METADATA } from "./auth.decorators";
+import { UseAuth, IgnoreAuth, PERMS_METADATA, IGNORE_AUTH_METADATA, IgnorePerms, IGNORE_PERMS_METADATA } from "./auth.decorators";
 
 describe('AuthDecorators', () => {
 
@@ -6,11 +6,15 @@ describe('AuthDecorators', () => {
   class Test {
     @IgnoreAuth()
     public static test() { }
+
+    @IgnorePerms()
+    public static testIgnorePerms() { }
   }
 
   it('should be defined', () => {
     expect(UseAuth).toBeDefined();
     expect(IgnoreAuth).toBeDefined();
+    expect(IgnorePerms).toBeDefined();
   });
 
   it('should set perms metadata to class', () => {
@@ -20,6 +24,11 @@ describe('AuthDecorators', () => {
 
   it('should set ignore auth metadata to class method', () => {
     const metadata = Reflect.getMetadata(IGNORE_AUTH_METADATA, Test.test);
+    expect(metadata).toBe(true);
+  })
+
+  it('should set ignore perms metadata to class method', () => {
+    const metadata = Reflect.getMetadata(IGNORE_PERMS_METADATA, Test.testIgnorePerms);
     expect(metadata).toBe(true);
   })
 });

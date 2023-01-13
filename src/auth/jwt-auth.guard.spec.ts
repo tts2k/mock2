@@ -2,7 +2,7 @@ import { createMock, PartialFuncReturn } from "@golevelup/ts-jest";
 import { ExecutionContext, MethodNotAllowedException, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { PermMode } from "@prisma/client";
-import { IgnoreAuth, UseAuth } from "./auth.decorators";
+import { IgnoreAuth, IgnorePerms, IGNORE_AUTH_METADATA, IGNORE_PERMS_METADATA, PERMS_METADATA, UseAuth } from "./auth.decorators";
 import { JwtUser, JwtUserPerm } from "./auth.interface";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 
@@ -27,8 +27,11 @@ describe('JwtAuthGuard', () => {
     public static test() { }
 
     @UseGuards(JwtAuthGuard)
-    @IgnoreAuth()
+    @IgnorePerms()
     public static test2() { }
+
+    @IgnoreAuth()
+    public static testIgnoreAuth() { }
   }
 
   class TestNoPerm { 
@@ -62,6 +65,23 @@ describe('JwtAuthGuard', () => {
     guard = new JwtAuthGuard(reflector);
   })
 
+  it('should skip auth check entirely if IgnoreAuth is set', () => {
+    ctx = createMock<ExecutionContext>({
+      getHandler: () => Test.testIgnoreAuth as PartialFuncReturn<Function>,
+      getClass: () => Test,
+      switchToHttp: () => ({
+        getRequest: () => ({
+          method: 'GET'
+        })
+      })
+    })
+
+    const result = guard.handleRequest(undefined, user, undefined, ctx);
+    expect(result).toEqual(user);
+    expect(reflector.get).toHaveBeenCalledWith(IGNORE_AUTH_METADATA, ctx.getHandler());
+    expect(reflector.get).toHaveBeenCalledTimes(1);
+  })
+
   it('should throw err when err is defined', () => {
     const err = new Error('test error');
     expect(() => guard.handleRequest(err, undefined, undefined, ctx)).toThrow(err);
@@ -84,8 +104,8 @@ describe('JwtAuthGuard', () => {
 
     const result = guard.handleRequest(undefined, user, undefined, ctx);
     expect(result).toEqual(user);
-    expect(reflector.get).toHaveBeenCalledWith('ignoreAuth', ctx.getHandler());
-    expect(reflector.get).toHaveBeenCalledTimes(1);
+    expect(reflector.get).toHaveBeenCalledWith(IGNORE_PERMS_METADATA, ctx.getHandler());
+    expect(reflector.get).toHaveBeenCalledTimes(2);
   })
 
   it('should return user if user is admin', () => {
@@ -111,9 +131,10 @@ describe('JwtAuthGuard', () => {
 
     const result = guard.handleRequest(undefined, user, undefined, ctx);
     expect(result).toEqual(user);
-    expect(reflector.get).toHaveBeenCalledWith('ignoreAuth', ctx.getHandler());
-    expect(reflector.get).toHaveBeenCalledWith('perms', ctx.getClass());
-    expect(reflector.get).toHaveBeenCalledTimes(2);
+    expect(reflector.get).toHaveBeenCalledWith(IGNORE_PERMS_METADATA, ctx.getHandler());
+    expect(reflector.get).toHaveBeenCalledWith(IGNORE_AUTH_METADATA, ctx.getHandler());
+    expect(reflector.get).toHaveBeenCalledWith(PERMS_METADATA, ctx.getClass());
+    expect(reflector.get).toHaveBeenCalledTimes(3);
     expect(ctx.switchToHttp).toHaveBeenCalledTimes(0);
   })
 
