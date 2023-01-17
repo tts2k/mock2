@@ -29,6 +29,8 @@ model User {
   orders           Order[]
   sessions         Session[]
   notificationSent NotificationSent[]
+  snapshots        UserSnapshot[]
+  cart             Cart?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,11 +38,24 @@ model User {
   address Address? @relation(fields: [addressId], references: [id])
 }
 
+model UserSnapshot {
+  id          Int     @id @default(autoincrement())
+  username    String
+  email       String
+  phoneNumber String?
+  userId      Int?
+  order       Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
 model Role {
   id                Int                 @id @default(autoincrement())
   name              String              @unique
   permissionsOnRole PermissionsOnRole[]
-  userId    Int?
+  userId            Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,14 +142,20 @@ model ProductColor {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product        Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productsOnCart ProductsOnCart[]
 }
 
 model Coupon {
-  id        Int      @id @default(autoincrement())
-  code      String
-  expires   DateTime
-  productId Int?
+  id                 Int        @id @default(autoincrement())
+  code               String
+  type               CouponType
+  discountAmount     Decimal?
+  discountPercentage Float?
+  expires            DateTime
+  limit              Decimal?
+  minimum            Decimal?
+  productId          Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -143,9 +164,17 @@ model Coupon {
 }
 
 model ProductSnapshot {
-  id        Int @id @default(autoincrement())
-  productId Int
-  orderId   Int
+  id            Int      @id @default(autoincrement())
+  name          String
+  price         Decimal
+  discount      Float
+  description   String?
+  specification String?
+  colorName     String
+  colorCode     String
+  colorImage    String[]
+  productId     Int
+  orderId       Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -201,38 +230,46 @@ model Review {
 
 model Order {
   id                Int               @id @default(autoincrement())
-  orderDetailId     Int               @unique
   orderStatus       OrderStatus
-  userId            Int?
-  paymentsId        Int
+  userId            Int
+  paymentId         Int
   shippingMethodId  Int
-  shippingAddress   Address           @relation(fields: [shippingAddressId], references: [id])
   shippingAddressId Int
+  userSnapshotId    Int
   productSnapshots  ProductSnapshot[]
+  totalDiscount     Decimal
+  totalPrice        Decimal
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User           User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Payments       Payment        @relation(fields: [paymentsId], references: [id])
-  shippingMethod ShippingMethod @relation(fields: [shippingMethodId], references: [id])
+  shippingAddress Address        @relation(fields: [shippingAddressId], references: [id])
+  User            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Payment         Payment        @relation(fields: [paymentId], references: [id])
+  shippingMethod  ShippingMethod @relation(fields: [shippingMethodId], references: [id])
+  userSnapshot    UserSnapshot   @relation(fields: [userSnapshotId], references: [id])
 }
 
 model Cart {
   id             Int              @id @default(autoincrement())
+  userId         Int              @unique
   productsOnCart ProductsOnCart[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProductsOnCart {
-  productId Int
-  cardId    Int
-  qty       Int
+  productId      Int
+  cardId         Int
+  productColorId Int
+  qty            Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  cart    Cart    @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  product Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cart    Cart         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  color   ProductColor @relation(fields: [productColorId], references: [id])
 
   @@id([productId, cardId])
 }
@@ -240,7 +277,7 @@ model ProductsOnCart {
 model ShippingMethod {
   id    Int     @id @default(autoincrement())
   name  String
-  Order Order[]
+  order Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -303,4 +340,9 @@ enum OrderStatus {
 enum PermMode {
   RO
   RW
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
 }

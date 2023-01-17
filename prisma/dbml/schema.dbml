@@ -20,9 +20,23 @@ Table User {
   orders Order [not null]
   sessions Session [not null]
   notificationSent NotificationSent [not null]
+  snapshots UserSnapshot [not null]
+  cart Cart
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   address Address
+}
+
+Table UserSnapshot {
+  id Int [pk, increment]
+  username String [not null]
+  email String [not null]
+  phoneNumber String
+  userId Int
+  order Order [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user User
 }
 
 Table Role {
@@ -109,12 +123,18 @@ Table ProductColor {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   product Product [not null]
+  productsOnCart ProductsOnCart [not null]
 }
 
 Table Coupon {
   id Int [pk, increment]
   code String [not null]
+  type CouponType [not null]
+  discountAmount Decimal
+  discountPercentage Float
   expires DateTime [not null]
+  limit Decimal
+  minimum Decimal
   productId Int
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -123,6 +143,14 @@ Table Coupon {
 
 Table ProductSnapshot {
   id Int [pk, increment]
+  name String [not null]
+  price Decimal [not null]
+  discount Float [not null]
+  description String
+  specification String
+  colorName String [not null]
+  colorCode String [not null]
+  colorImage String[] [not null]
   productId Int [not null]
   orderId Int [not null]
   createdAt DateTime [default: `now()`, not null]
@@ -174,34 +202,41 @@ Table Review {
 
 Table Order {
   id Int [pk, increment]
-  orderDetailId Int [unique, not null]
   orderStatus OrderStatus [not null]
-  userId Int
-  paymentsId Int [not null]
+  userId Int [not null]
+  paymentId Int [not null]
   shippingMethodId Int [not null]
-  shippingAddress Address [not null]
   shippingAddressId Int [not null]
+  userSnapshotId Int [not null]
   productSnapshots ProductSnapshot [not null]
+  totalDiscount Decimal [not null]
+  totalPrice Decimal [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+  shippingAddress Address [not null]
   User User
-  Payments Payment [not null]
+  Payment Payment [not null]
   shippingMethod ShippingMethod [not null]
+  userSnapshot UserSnapshot [not null]
 }
 
 Table Cart {
   id Int [pk, increment]
+  userId Int [unique, not null]
   productsOnCart ProductsOnCart [not null]
+  user User [not null]
 }
 
 Table ProductsOnCart {
   productId Int [not null]
   cardId Int [not null]
+  productColorId Int [not null]
   qty Int [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   product Product [not null]
   cart Cart [not null]
+  color ProductColor [not null]
 
   indexes {
     (productId, cardId) [pk]
@@ -211,7 +246,7 @@ Table ProductsOnCart {
 Table ShippingMethod {
   id Int [pk, increment]
   name String [not null]
-  Order Order [not null]
+  order Order [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
@@ -271,7 +306,14 @@ Enum PermMode {
   RW
 }
 
+Enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
 Ref: User.addressId > Address.id
+
+Ref: UserSnapshot.userId > User.id
 
 Ref: Role.userId > User.id
 
@@ -303,13 +345,19 @@ Ref: Order.shippingAddressId > Address.id
 
 Ref: Order.userId > User.id [delete: Cascade]
 
-Ref: Order.paymentsId > Payment.id
+Ref: Order.paymentId > Payment.id
 
 Ref: Order.shippingMethodId > ShippingMethod.id
+
+Ref: Order.userSnapshotId > UserSnapshot.id
+
+Ref: Cart.userId - User.id [delete: Cascade]
 
 Ref: ProductsOnCart.productId > Product.id [delete: Cascade]
 
 Ref: ProductsOnCart.cardId > Cart.id [delete: Cascade]
+
+Ref: ProductsOnCart.productColorId > ProductColor.id
 
 Ref: NotificationSent.notificationId > Notification.id [delete: Cascade]
 
